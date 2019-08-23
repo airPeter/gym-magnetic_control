@@ -1,0 +1,7 @@
+README.md
+setup.py
+gym_mag_control.egg-info/PKG-INFO
+gym_mag_control.egg-info/SOURCES.txt
+gym_mag_control.egg-info/dependency_links.txt
+gym_mag_control.egg-info/requires.txt
+gym_mag_control.egg-info/top_level.txt
