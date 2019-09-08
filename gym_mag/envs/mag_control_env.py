@@ -23,15 +23,16 @@ class MagControlEnv(gym.Env):
 
     Actions: change magetic momentum of the fixed dipoles.
         Type: Box(4)
-        Num    action           Min     Max
-        0      change m1x        -1      1
-        1      change m2x        -1      1   
-        2      change m3x        -1      1
-        3      change m4x        -1      1
-        4      change m1y        -1      1
-        5      change m2y        -1      1   
-        6      change m3y        -1      1
-        7      change m4y        -1      1
+        Num    action           
+        0      increase m1y       
+        1      increase m2y       
+        2      increase m3y        
+        3      increase m4y        
+        4      decrease m1y       
+        5      decrease m2y         
+        6      decrease m3y     
+        7      decrease m4y
+        8       doing nothing       
     Reward:
         Reward is -L.  L is the distance between ball and target point. 
         Target point is randomly initialized for every section.
@@ -57,11 +58,12 @@ class MagControlEnv(gym.Env):
         self.tau = 0.02 # secondes between state updates
         #self.target_postion = [0,0] #(x,y)
         self.threshold = 4
-
+        self.step_size_m = 0.01
         high = np.array([5, 5, np.finfo(np.float32).max, np.finfo(np.float32).max, 5, 5])
-        high_action = np.array([1,1,1,1,1,1,1,1])
+
         self.observation_space = spaces.Box(-high,high, dtype = np.float32)
-        self.action_space = spaces.Box(np.zeros(high_action.shape), high_action, dtype = np.float32)
+        self.action_space = spaces.Discrete(9)
+        self.magnetic_momentum = None
 
         self.seed()
         self.viewer = None
@@ -75,15 +77,27 @@ class MagControlEnv(gym.Env):
         return [seed]
 
     def step(self, action):
+        '''
+            args: action is a number from 0 to 7
+            0 1 2 3 means increase
+            4 5 6 7means decrease
+            8 means doning nothing
+        '''
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         state = self.state
         x, y, vx, vy, tx, ty = state
-        mx = action[0:4]
-        my = action[4:]
+        if action <=3:
+            self.magnetic_momentum[action] = self.magnetic_momentum[action]+self.step_size_m
+        elif action <=7:
+            self.magnetic_momentum[action] = self.magnetic_momentum[action]-self.step_size_m
+
+        mx = np.zeros(4) # this direction is currently set to zero.
+        my = self.magnetic_momentum
         self.dipoles = magnetic_dipoles(self.x0, self.y0, mx, my)
         Fx, Fy = self.dipoles.force_on_paramagnetic(x,y,self.m_ball)
         ax = Fx/self.massball
         ay = Fy/self.massball
+
         # update:
         vx = vx+ax*self.tau
         vy = vy+ay*self.tau
@@ -111,10 +125,12 @@ class MagControlEnv(gym.Env):
         return np.array(self.state), reward, done, {}
 
     def reset(self):
-        x, y, vx, vy = self.np_random.uniform(low=-0.05,high=0.05, size=(4,))
+        #x, y, vx, vy = self.np_random.uniform(low=-0.05,high=0.05, size=(4,))
+        x, y, vx, vy = 0,0,0,0
         self.steps_beyond_done = None
         tx, ty = self.np_random.uniform(low=-self.threshold, high=self.threshold, size=(2,))
         self.state = (x,y,vx,vy,tx,ty)
+        self.magnetic_momentum = np.zeros(4)
         return np.array(self.state)
 
     def render(self, mode='human'):
@@ -233,6 +249,10 @@ class magnetic_dipoles():
         Bx = field[0]
         By = field[1]
         B = np.sqrt(Bx**2+By**2)
-        Fx = m/B*(Bx*dBx_dx+By*dBy_dx)
-        Fy = m/B*(Bx*dBx_dy+By*dBy_dy)
+        if B == 0:
+            Fx = 0
+            Fy = 0
+        else:
+            Fx = m/B*(Bx*dBx_dx+By*dBy_dx)
+            Fy = m/B*(Bx*dBx_dy+By*dBy_dy)
         return Fx, Fy
