@@ -6,7 +6,7 @@ An env for 2d paramagnetic_ball_control. Four magnets are at four corners. By in
         at a square area, four magnetic dipoles(gray circles) are fixed at four courner. One paramagnetic ball(gray circles) can
         move inside the area without friction. The goal is to adjust the force of fixed dipoles exerted on
         the ball to make the ball stay at the target point(red spot).
-        ![env-mag_control](/gym_mag.png)
+        ![env-mag_control](/image/gym_mag.png)
 
     Observation:
         Type: Box(4)
