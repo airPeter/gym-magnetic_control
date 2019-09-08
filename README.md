@@ -3,9 +3,10 @@ Install:
     
 An env for 2d paramagnetic_ball_control. Four magnets are at four corners. By increasing or decreasing the magnetic momentum, a paramagnetic_ball on the ground can be moved at target place.
     Description:
-        at a square area, four magnetic dipoles are fixed at four courner. One paramagnetic ball can
+        at a square area, four magnetic dipoles(gray circles) are fixed at four courner. One paramagnetic ball(gray circles) can
         move inside the area without friction. The goal is to adjust the force of fixed dipoles exerted on
-        the ball to make the ball stay at the target point.
+        the ball to make the ball stay at the target point(red spot).
+        ![env-mag_control](/gym_mag.png)
 
     Observation:
         Type: Box(4)
