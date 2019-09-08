@@ -1,3 +1,6 @@
+Install:
+    first have gym installed, them use command: pip install -e . 
+    
 An env for 2d paramagnetic_ball_control. Four magnets are at four corners. By increasing or decreasing the magnetic momentum, a paramagnetic_ball on the ground can be moved at target place.
     Description:
         at a square area, four magnetic dipoles are fixed at four courner. One paramagnetic ball can
